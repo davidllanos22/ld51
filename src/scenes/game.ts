@@ -1,5 +1,5 @@
 import { Howl } from "howler";
-import { Container, Graphics, graphicsUtils, Point, Rectangle, Text } from "pixi.js";
+import { Container, filters, Graphics, Point, Rectangle, SCALE_MODES, Sprite, Text } from "pixi.js";
 import { Ghost } from "../entities/ghost";
 import { Player } from "../entities/player";
 import { Input, Keys } from "../lib/input";
@@ -24,7 +24,9 @@ export class GameScene extends Scene{
   postTimeout: any;
   firstTimer: boolean = true;
 
-  collisionsGraphics: Graphics = new Graphics();;
+  collisionsGraphics: Graphics = new Graphics();
+
+  focusSprite: Sprite;
 
   init(): void {
     let text = new Text('Game Scene', {
@@ -49,6 +51,25 @@ export class GameScene extends Scene{
 
     this.addChild(this.collisionsGraphics);
 
+    const radius = 700;
+    const blurSize = 100;
+
+    const circle = new Graphics()
+        .beginFill(0xFF0000)
+        .drawCircle(radius + blurSize + 50, radius + blurSize + 50, radius)
+        .endFill();
+
+    circle.filters = [new filters.BlurFilter(blurSize)];
+    let size = (radius + blurSize + 20) * 2 + 50;
+
+    const bounds = new Rectangle(0, 0, size, size);
+    const texture = this.sceneManager.app.renderer.generateTexture(circle, SCALE_MODES.LINEAR, 2, bounds);
+    this.focusSprite = new Sprite(texture);
+    this.focusSprite.pivot.set(size / 2, size / 2);
+
+    this.addChild(this.focusSprite);
+    this.mask = this.focusSprite;
+
     this.startTimers();
 
     this.sound = new Howl({
@@ -71,12 +92,18 @@ export class GameScene extends Scene{
 
     this.pivot.set(cameraX, cameraY);
 
+    this.focusSprite.position.x = cameraX + screenWidth / 2;
+    this.focusSprite.position.y = cameraY + screenHeight / 2;
+
+    let r = 1 + Math.random() * 0.05;
+    this.focusSprite.scale.set(r, r);
+
+
     this.ghosts.forEach((ghost: Ghost)=>{
       ghost.update(dt);
     });
 
     this.drawCollisionsGraphics();
-
   }
 
   spawnGhosts(){
