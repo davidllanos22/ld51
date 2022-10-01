@@ -33,4 +33,8 @@ export class MathUtils{
     a.y < b.y + b.height &&
     a.height + a.y > b.y;
   }
+
+  static angleFromTo(a: IPoint, b: IPoint){
+    return Math.atan2(b.y - a.y, b.x - a.x);
+  }
 }

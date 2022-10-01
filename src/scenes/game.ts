@@ -1,5 +1,5 @@
 import { Howl } from "howler";
-import { Container, filters, Graphics, Point, Rectangle, SCALE_MODES, Sprite, Text } from "pixi.js";
+import { Container, DisplayObject, filters, Graphics, Point, Rectangle, SCALE_MODES, Sprite, Text } from "pixi.js";
 import { Ghost } from "../entities/ghost";
 import { Player } from "../entities/player";
 import { Input, Keys } from "../lib/input";
@@ -26,7 +26,7 @@ export class GameScene extends Scene{
   collisionsGraphics: Graphics = new Graphics();
 
   focusSprite: Sprite;
-  focusSpriteScale: number = 4;
+  focusSpriteScale: number = 3;
 
   isGhostTurn: boolean = false;
 
@@ -87,8 +87,8 @@ export class GameScene extends Scene{
     let screenWidth = this.sceneManager.app.view.width / SCALE;
     let screenHeight = this.sceneManager.app.view.height / SCALE;
 
-    let cameraX = (this.player.x + 200) - screenWidth / 2;
-    let cameraY = (this.player.y + 200) - screenHeight / 2;
+    let cameraX = this.player.x - screenWidth / 2;
+    let cameraY = this.player.y - screenHeight / 2;
 
     this.pivot.set(cameraX, cameraY);
 
@@ -101,6 +101,10 @@ export class GameScene extends Scene{
 
     this.ghosts.forEach((ghost: Ghost)=>{
       ghost.update(dt);
+    });
+
+    this.ghostContainer.children.sort((a: DisplayObject, b: DisplayObject) => {
+      return a.y - b.y;
     });
 
     this.drawCollisionsGraphics();
@@ -157,7 +161,7 @@ export class GameScene extends Scene{
   }
 
   showFlashlight(){
-    createjs.Tween.get(this).to({focusSpriteScale: 4}, 1000);
+    createjs.Tween.get(this).to({focusSpriteScale: 3}, 1000);
   }
 
   hideFlashlight(){

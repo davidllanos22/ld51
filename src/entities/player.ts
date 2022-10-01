@@ -19,6 +19,7 @@ export class Player extends Container{
     let animations = new Map<string, TiledAnimation>();
 
     animations.set("walk", {
+      // frames: [{x: 0, y: 0}, {x: 1, y: 0}],
       frames: [{x: 0, y: 0}],
       timePerFrame: 100,
       loop: true
@@ -26,6 +27,7 @@ export class Player extends Container{
 
     this.tiledAnimationSprite = new TiledAnimationSprite(this.sceneManager.app.loader.resources["player"].texture, 400, 400, animations);
     this.tiledAnimationSprite.setAnimation("walk");
+    this.tiledAnimationSprite.pivot.set(200, 200);
 
     this.collision = new Rectangle(0, 0, 200, 200);
     this.interactCollision = new Rectangle(0, 0, 400, 400);
@@ -76,8 +78,8 @@ export class Player extends Container{
   }
 
   updateCollisions(){
-    this.collision.x = this.position.x + 100;
-    this.collision.y = this.position.y + 200;
+    this.collision.x = this.position.x - 100;
+    this.collision.y = this.position.y;
 
     //TODO: posicionar correctamente
     this.interactCollision.x = this.position.x;
