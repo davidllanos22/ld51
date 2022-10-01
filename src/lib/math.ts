@@ -1,4 +1,4 @@
-import { IPoint, Point } from "pixi.js";
+import { IPoint, Point, Rectangle } from "pixi.js";
 
 export class Vector2{
   x: number = 0;
@@ -21,5 +21,12 @@ export class MathUtils{
 
   static randomInt(min: number, max: number){
     return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  static rectsCollide(a: Rectangle, b: Rectangle){
+    return a.x < b.x + b.width &&
+    a.x + a.width > b.x &&
+    a.y < b.y + b.height &&
+    a.height + a.y > b.y;
   }
 }

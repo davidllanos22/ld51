@@ -25,6 +25,7 @@ const main = async () => {
   let app = new PIXI.Application();
 
   // Display application properly
+  document.title = "EVERY 10 SECONDS";
   document.body.style.margin = '0';
   app.renderer.view.style.position = 'absolute';
   app.renderer.view.style.display = 'block';

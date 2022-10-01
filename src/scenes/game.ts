@@ -1,5 +1,5 @@
 import { Howl } from "howler";
-import { Container, Point, Text } from "pixi.js";
+import { Container, Graphics, graphicsUtils, Point, Rectangle, Text } from "pixi.js";
 import { Ghost } from "../entities/ghost";
 import { Player } from "../entities/player";
 import { Input, Keys } from "../lib/input";
@@ -8,6 +8,8 @@ import { Scene } from "../lib/scene";
 import { TiledMap } from "../lib/tiled-map";
 
 const NUM_GHOSTS = 5;
+const SCALE = 0.3;
+const EVERY_10_SECONDS = 10000;
 
 export class GameScene extends Scene{
   sound?: Howl;
@@ -17,6 +19,13 @@ export class GameScene extends Scene{
   ghostContainer: Container = new Container();
   map: TiledMap;
 
+  mainTimeout: any;
+  preTimeout: any;
+  postTimeout: any;
+  firstTimer: boolean = true;
+
+  collisionsGraphics: Graphics = new Graphics();;
+
   init(): void {
     let text = new Text('Game Scene', {
       fontFamily : 'Arial',
@@ -24,19 +33,23 @@ export class GameScene extends Scene{
       fill : 0xFFFFFF,
     });
 
-    this.scale.set(0.3, 0.3);
+    this.scale.set(SCALE, SCALE);
 
     this.addChild(text);
     this.map = new TiledMap(this.sceneManager, "map");
     this.addChild(this.map);
 
-    this.player = new Player(this.sceneManager, new Point(400, 0));
+    this.player = new Player(this.sceneManager, new Point(12 * 400, 23 * 400));
     this.addChild(this.player);
 
-
-    //this.spawnGhosts();
-
+    this.spawnGhosts();
+    this.ghostContainer.visible = false;
+    
     this.addChild(this.ghostContainer);
+
+    this.addChild(this.collisionsGraphics);
+
+    this.startTimers();
 
     this.sound = new Howl({
       src: ['assets/sounds/random.wav']
@@ -45,19 +58,25 @@ export class GameScene extends Scene{
 
   update(dt: number): void {
 
-    if(Input.isKeyJustPressed(Keys.SPACE)){
-      this.sound.play();
-    }
-
     if(Input.isKeyJustPressed(Keys.ESC)){
       this.sceneManager.changeScene("title");
     }
 
     this.player.update(dt);
+    let screenWidth = this.sceneManager.app.view.width / SCALE;
+    let screenHeight = this.sceneManager.app.view.height / SCALE;
+
+    let cameraX = (this.player.x + 200) - screenWidth / 2;
+    let cameraY = (this.player.y + 200) - screenHeight / 2;
+
+    this.pivot.set(cameraX, cameraY);
 
     this.ghosts.forEach((ghost: Ghost)=>{
       ghost.update(dt);
     });
+
+    this.drawCollisionsGraphics();
+
   }
 
   spawnGhosts(){
@@ -70,4 +89,72 @@ export class GameScene extends Scene{
       this.ghostContainer.addChild(ghost);
     }
   }
+
+  startTimers(){
+    if(this.mainTimeout) clearTimeout(this.mainTimeout);
+    if(this.preTimeout) clearTimeout(this.preTimeout);
+    if(this.postTimeout) clearTimeout(this.postTimeout);
+
+    this.mainTimeout = setTimeout(this.onMainTimer.bind(this), EVERY_10_SECONDS);
+    this.preTimeout = setTimeout(this.onPreTimer.bind(this), EVERY_10_SECONDS - 1000);
+    this.postTimeout = setTimeout(this.onPostTimer.bind(this), 1000);
+  }
+
+  onMainTimer(){
+    this.startTimers();
+    console.log("main");
+    this.toggleFlashlight();
+    this.showGhosts();
+  }
+
+  onPreTimer(){
+    console.log("pre");
+    this.blinkFlashlight();
+    this.hideGhosts();
+  }
+
+  onPostTimer(){
+    if(this.firstTimer){
+      this.firstTimer = false;
+      return;
+    }
+    console.log("post");
+    this.startMovingGhosts();
+  }
+
+  showGhosts(){
+    this.ghostContainer.visible = true;
+  }
+
+  hideGhosts(){
+    this.ghostContainer.visible = false;
+  }
+
+  startMovingGhosts(){
+
+  }
+
+  blinkFlashlight(){
+
+  }
+
+  toggleFlashlight(){
+
+  }
+
+
+  drawCollisionsGraphics(){
+    this.collisionsGraphics.clear();
+    let collisions = [];
+
+    if(this.map) collisions.push(...this.map.collisions);
+    if(this.player) collisions.push(this.player.collision);
+
+    this.collisionsGraphics.lineStyle(5, 0xFF0000);
+
+    collisions.forEach((collision: Rectangle)=>{
+      this.collisionsGraphics.drawRect(collision.x, collision.y, collision.width, collision.height);
+    });
+  }
+
 }

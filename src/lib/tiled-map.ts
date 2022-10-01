@@ -1,8 +1,9 @@
-import { Container, RenderTexture, Sprite, TilingSprite } from "pixi.js";
+import { Container, Rectangle, RenderTexture, Sprite, TilingSprite } from "pixi.js";
 import { SceneManager } from "./scene-manager";
 
 export class TiledMap extends Container{
   sprite: Sprite;
+  collisions: Rectangle[] = [];
 
   constructor(private sceneManager: SceneManager, map: string){
     super();
@@ -11,10 +12,9 @@ export class TiledMap extends Container{
     this.addChild(new Sprite(renderTexture))
   }
 
-
   getRenderTextureFromMap(map: string): RenderTexture{
     let mapJSON: any = this.sceneManager.app.loader.resources[map].data;
-    // console.log(mapJSON);
+    console.log(mapJSON);
 
     let mapWidth = mapJSON.width;
     let mapHeight = mapJSON.height;
@@ -30,26 +30,32 @@ export class TiledMap extends Container{
     mapJSON.layers.forEach((layer: any)=>{
       let data = layer.data;
       data.forEach((tile: number, index: number)=>{
+        
         if(tile != 0){
-          let tileX = index % mapWidth;
-          let tileY = Math.floor(index / mapWidth);
-          let spriteX = (tile - 1) % numTilesX;
-          let spriteY =  Math.floor((tile - 1) / numTilesX);
-          let tilesSprite = new TilingSprite(tilesTexture, tileWidth, tileHeight);
+          let tileX = (index % mapWidth) * tileWidth;
+          let tileY = Math.floor(index / mapWidth) * tileHeight;
+          let spriteX = ((tile - 1) % numTilesX) * tileWidth;
+          let spriteY =  Math.floor((tile - 1) / numTilesX) * tileHeight;
 
-          tilesSprite.position.x = tileX * tileWidth;
-          tilesSprite.position.y = tileY * tileHeight;
-          
-          tilesSprite.tilePosition.x = -(spriteX * tileWidth);
-          tilesSprite.tilePosition.y = -(spriteY * tileHeight);
-          
-          container.addChild(tilesSprite);
+          if(layer.name == "collisions"){
+            let rectangle = new Rectangle(tileX, tileY, tileWidth, tileHeight);
+            this.collisions.push(rectangle);
+          }else{
+            let tilesSprite = new TilingSprite(tilesTexture, tileWidth, tileHeight);
+  
+            tilesSprite.position.x = tileX;
+            tilesSprite.position.y = tileY;
+            
+            tilesSprite.tilePosition.x = -spriteX;
+            tilesSprite.tilePosition.y = -spriteY;
+            
+            container.addChild(tilesSprite);
+          }
         }
       });
     });
 
     this.sceneManager.app.renderer.render(container, renderTexture);
-
     return renderTexture;
   }
 

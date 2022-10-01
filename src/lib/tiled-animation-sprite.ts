@@ -41,8 +41,8 @@ export class TiledAnimationSprite extends TilingSprite{
       this.startTime = now;
     }
 
-    this.tilePosition.x = this.width * frame.x;
-    this.tilePosition.y = this.height * frame.y;
+    this.tilePosition.x = -(this.width * frame.x);
+    this.tilePosition.y = -(this.height * frame.y);
   }
 
   getAnimation(animationName: string): TiledAnimation | undefined{
