@@ -7,7 +7,7 @@ import { MathUtils } from "../lib/math";
 import { Scene } from "../lib/scene";
 import { TiledMap } from "../lib/tiled-map";
 
-const NUM_GHOSTS = 5;
+const NUM_GHOSTS = 1;
 const SCALE = 0.3;
 const EVERY_10_SECONDS = 10000;
 
@@ -28,6 +28,8 @@ export class GameScene extends Scene{
 
   focusSprite: Sprite;
 
+  isGhostTurn: boolean = false;
+
   init(): void {
     let text = new Text('Game Scene', {
       fontFamily : 'Arial',
@@ -37,20 +39,30 @@ export class GameScene extends Scene{
 
     this.scale.set(SCALE, SCALE);
 
-    this.addChild(text);
+    // this.addChild(text);
     this.map = new TiledMap(this.sceneManager, "map");
     this.addChild(this.map);
 
-    this.player = new Player(this.sceneManager, new Point(12 * 400, 23 * 400));
+    //TODO: obtener posición inicial de tiled
+    this.player = new Player(this.sceneManager, new Point(0, 0));
     this.addChild(this.player);
 
     this.spawnGhosts();
-    this.ghostContainer.visible = false;
     
     this.addChild(this.ghostContainer);
 
     this.addChild(this.collisionsGraphics);
 
+    this.initFlashLightMask();
+
+    this.startTimers();
+
+    this.sound = new Howl({
+      src: ['assets/sounds/random.wav']
+    });
+  }
+
+  initFlashLightMask(){
     const radius = 700;
     const blurSize = 100;
 
@@ -66,15 +78,9 @@ export class GameScene extends Scene{
     const texture = this.sceneManager.app.renderer.generateTexture(circle, SCALE_MODES.LINEAR, 2, bounds);
     this.focusSprite = new Sprite(texture);
     this.focusSprite.pivot.set(size / 2, size / 2);
+    this.focusSprite.visible = false;
 
     this.addChild(this.focusSprite);
-    this.mask = this.focusSprite;
-
-    this.startTimers();
-
-    this.sound = new Howl({
-      src: ['assets/sounds/random.wav']
-    });
   }
 
   update(dt: number): void {
@@ -92,12 +98,12 @@ export class GameScene extends Scene{
 
     this.pivot.set(cameraX, cameraY);
 
-    this.focusSprite.position.x = cameraX + screenWidth / 2;
-    this.focusSprite.position.y = cameraY + screenHeight / 2;
-
-    let r = 1 + Math.random() * 0.05;
-    this.focusSprite.scale.set(r, r);
-
+    if(this.focusSprite){
+      this.focusSprite.position.x = cameraX + screenWidth / 2;
+      this.focusSprite.position.y = cameraY + screenHeight / 2;
+      let r = 1 + Math.random() * 0.05;
+      this.focusSprite.scale.set(r, r);
+    }
 
     this.ghosts.forEach((ghost: Ghost)=>{
       ghost.update(dt);
@@ -109,9 +115,9 @@ export class GameScene extends Scene{
   spawnGhosts(){
     //TODO hacer puntos de spawn por el mapa en vez de añadirlos en una posición random
     for(let i = 0; i < NUM_GHOSTS; i++){
-      let x = MathUtils.randomInt(-500, 1000);
-      let y = MathUtils.randomInt(-500, 1000);
-      let ghost = new Ghost(this.sceneManager, this.player, new Point(x, y));
+      let x = 0;MathUtils.randomInt(-500, 1000);
+      let y = 0;MathUtils.randomInt(-500, 1000);
+      let ghost = new Ghost(this.sceneManager, new Point(x, y));
       this.ghosts.push(ghost);
       this.ghostContainer.addChild(ghost);
     }
@@ -129,15 +135,23 @@ export class GameScene extends Scene{
 
   onMainTimer(){
     this.startTimers();
-    console.log("main");
-    this.toggleFlashlight();
-    this.showGhosts();
+
+    if(this.isGhostTurn){
+      this.showFlashlight();
+    }else{
+      this.hideFlashlight();
+      this.showGhosts();
+    }
+
   }
 
   onPreTimer(){
-    console.log("pre");
-    this.blinkFlashlight();
-    this.hideGhosts();
+    if(this.isGhostTurn) {
+      this.stopMovingGhosts();
+      this.hideGhosts();
+    }else{
+      this.blinkFlashlight();
+    }  
   }
 
   onPostTimer(){
@@ -145,28 +159,48 @@ export class GameScene extends Scene{
       this.firstTimer = false;
       return;
     }
-    console.log("post");
-    this.startMovingGhosts();
+
+    if(!this.isGhostTurn) this.startMovingGhosts();
+
+    this.isGhostTurn = !this.isGhostTurn;
   }
 
   showGhosts(){
-    this.ghostContainer.visible = true;
+    this.ghosts.forEach((ghost: Ghost)=>{
+      ghost.show();
+    });
   }
 
   hideGhosts(){
-    this.ghostContainer.visible = false;
+    this.ghosts.forEach((ghost: Ghost)=>{
+      ghost.hide();
+    });
   }
 
   startMovingGhosts(){
+    this.ghosts.forEach((ghost: Ghost)=>{
+      ghost.target = this.player;
+    });
+  }
 
+  stopMovingGhosts(){
+    this.ghosts.forEach((ghost: Ghost)=>{
+      ghost.target = null;
+    });
   }
 
   blinkFlashlight(){
-
+    console.log("TODO: blinkFlashlight")
   }
 
-  toggleFlashlight(){
+  showFlashlight(){
+    this.mask = null;
+    this.focusSprite.visible = false;
+  }
 
+  hideFlashlight(){
+    this.mask = this.focusSprite;
+    this.focusSprite.visible = true;
   }
 
 

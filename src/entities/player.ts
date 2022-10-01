@@ -19,7 +19,7 @@ export class Player extends Container{
     let animations = new Map<string, TiledAnimation>();
 
     animations.set("walk", {
-      frames: [{x: 0, y: 0}, {x: 1, y: 0}],
+      frames: [{x: 0, y: 0}],
       timePerFrame: 100,
       loop: true
     })

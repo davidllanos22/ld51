@@ -1,23 +1,24 @@
-import { Container, IPoint } from "pixi.js";
+import { Container, IPoint, Sprite } from "pixi.js";
 import { MathUtils } from "../lib/math";
 import { SceneManager } from "../lib/scene-manager";
 import { TiledAnimation, TiledAnimationSprite } from "../lib/tiled-animation-sprite";
-import { Player } from "./player";
+import * as createjs from 'createjs-module';
 
 export class Ghost extends Container{
   tiledAnimationSprite?: TiledAnimationSprite;
   speed: number = 2;
 
   count: number = 0;
+  target: Container;
 
-  constructor(private sceneManager: SceneManager, private player: Player, position: IPoint){
+  constructor(private sceneManager: SceneManager, position: IPoint){
     super();
     this.position = position;
 
     let animations = new Map<string, TiledAnimation>();
 
     animations.set("walk", {
-      frames: [{x: 0, y: 0}],
+      frames: [{x: 0, y: 1}],
       timePerFrame: 100,
       loop: true
     });
@@ -25,6 +26,7 @@ export class Ghost extends Container{
     this.tiledAnimationSprite = new TiledAnimationSprite(this.sceneManager.app.loader.resources["ghost"].texture, 400, 400, animations);
     this.tiledAnimationSprite.setAnimation("walk");
     this.tiledAnimationSprite.pivot.set(200, 200);
+    this.tiledAnimationSprite.alpha = 0;
 
     this.addChild(this.tiledAnimationSprite);
   }
@@ -38,6 +40,14 @@ export class Ghost extends Container{
     this.count += 0.1;
 
     // TODO: poder usar una velocidad concreta, diferente para cada uno?
-    this.position = MathUtils.lerpPoint(this.position, this.player.position, 0.002);
+    if(this.target) this.position = MathUtils.lerpPoint(this.position, this.target.position, 0.002);
+  }
+
+  show(){
+    createjs.Tween.get(this.tiledAnimationSprite).to({alpha: 1}, 1000);
+  }
+
+  hide(){
+    createjs.Tween.get(this.tiledAnimationSprite).to({alpha: 0}, 1000);
   }
 }

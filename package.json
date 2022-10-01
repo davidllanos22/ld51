@@ -21,7 +21,10 @@
     },
     "dependencies": {
         "@types/howler": "^2.2.7",
+        "@types/tweenjs": "^1.0.4",
+        "createjs-module": "^0.8.3",
         "howler": "^2.2.3",
-        "pixi.js": "5.2.1"
+        "pixi.js": "5.2.1",
+        "tweenjs": "^1.0.2"
     }
 }
