@@ -6,6 +6,7 @@ import { Input, Keys } from "../lib/input";
 import { MathUtils } from "../lib/math";
 import { Scene } from "../lib/scene";
 import { TiledMap } from "../lib/tiled-map";
+import * as createjs from 'createjs-module';
 
 const NUM_GHOSTS = 1;
 const SCALE = 0.3;
@@ -20,13 +21,11 @@ export class GameScene extends Scene{
   map: TiledMap;
 
   mainTimeout: any;
-  preTimeout: any;
-  postTimeout: any;
-  firstTimer: boolean = true;
 
   collisionsGraphics: Graphics = new Graphics();
 
   focusSprite: Sprite;
+  focusSpriteScale: number = 4;
 
   isGhostTurn: boolean = false;
 
@@ -63,7 +62,7 @@ export class GameScene extends Scene{
   }
 
   initFlashLightMask(){
-    const radius = 700;
+    const radius = 400;
     const blurSize = 100;
 
     const circle = new Graphics()
@@ -78,7 +77,8 @@ export class GameScene extends Scene{
     const texture = this.sceneManager.app.renderer.generateTexture(circle, SCALE_MODES.LINEAR, 2, bounds);
     this.focusSprite = new Sprite(texture);
     this.focusSprite.pivot.set(size / 2, size / 2);
-    this.focusSprite.visible = false;
+
+    this.mask = this.focusSprite;
 
     this.addChild(this.focusSprite);
   }
@@ -101,7 +101,7 @@ export class GameScene extends Scene{
     if(this.focusSprite){
       this.focusSprite.position.x = cameraX + screenWidth / 2;
       this.focusSprite.position.y = cameraY + screenHeight / 2;
-      let r = 1 + Math.random() * 0.05;
+      let r = this.focusSpriteScale + Math.random() * 0.05;
       this.focusSprite.scale.set(r, r);
     }
 
@@ -125,42 +125,22 @@ export class GameScene extends Scene{
 
   startTimers(){
     if(this.mainTimeout) clearTimeout(this.mainTimeout);
-    if(this.preTimeout) clearTimeout(this.preTimeout);
-    if(this.postTimeout) clearTimeout(this.postTimeout);
 
     this.mainTimeout = setTimeout(this.onMainTimer.bind(this), EVERY_10_SECONDS);
-    this.preTimeout = setTimeout(this.onPreTimer.bind(this), EVERY_10_SECONDS - 1000);
-    this.postTimeout = setTimeout(this.onPostTimer.bind(this), 1000);
   }
 
   onMainTimer(){
     this.startTimers();
 
     if(this.isGhostTurn){
-      this.showFlashlight();
-    }else{
-      this.hideFlashlight();
-      this.showGhosts();
-    }
-
-  }
-
-  onPreTimer(){
-    if(this.isGhostTurn) {
       this.stopMovingGhosts();
       this.hideGhosts();
+      this.showFlashlight();
     }else{
-      this.blinkFlashlight();
-    }  
-  }
-
-  onPostTimer(){
-    if(this.firstTimer){
-      this.firstTimer = false;
-      return;
+      this.startMovingGhosts();
+      this.showGhosts();
+      this.hideFlashlight();
     }
-
-    if(!this.isGhostTurn) this.startMovingGhosts();
 
     this.isGhostTurn = !this.isGhostTurn;
   }
@@ -189,20 +169,13 @@ export class GameScene extends Scene{
     });
   }
 
-  blinkFlashlight(){
-    console.log("TODO: blinkFlashlight")
-  }
-
   showFlashlight(){
-    this.mask = null;
-    this.focusSprite.visible = false;
+    createjs.Tween.get(this).to({focusSpriteScale: 4}, 1000);
   }
 
   hideFlashlight(){
-    this.mask = this.focusSprite;
-    this.focusSprite.visible = true;
+    createjs.Tween.get(this).to({focusSpriteScale: 1}, 1000);
   }
-
 
   drawCollisionsGraphics(){
     this.collisionsGraphics.clear();
