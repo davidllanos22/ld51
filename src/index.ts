@@ -7,12 +7,13 @@ import { TitleScene } from './scenes/title';
 
 let sceneManager: SceneManager;
 
-let titleScene = new TitleScene();
-
 const load = (app: PIXI.Application) => {
   return new Promise<void>((resolve) => {
     app.loader
-    .add('assets/images/player.png')
+    .add("player", "assets/images/player.png")
+    .add("ghost", "assets/images/ghost.png")
+    .add("map", "assets/tiled/map.json")
+    .add("tiles", "assets/images/tiles.png")
     .load(() => {
       resolve();
     });
@@ -48,7 +49,7 @@ const main = async () => {
 
   sceneManager.setScenes(scenes);
 
-  sceneManager.changeScene("title")
+  sceneManager.changeScene("game")
 
   app.ticker.add(update);
 };

@@ -1,15 +1,21 @@
 import { Howl } from "howler";
-import { Text } from "pixi.js";
+import { Container, Point, Text } from "pixi.js";
+import { Ghost } from "../entities/ghost";
+import { Player } from "../entities/player";
 import { Input, Keys } from "../lib/input";
-import { Vector2 } from "../lib/math";
+import { MathUtils } from "../lib/math";
 import { Scene } from "../lib/scene";
-import { TiledAnimation, TiledAnimationSprite } from "../lib/tiled-animation-sprite";
+import { TiledMap } from "../lib/tiled-map";
+
+const NUM_GHOSTS = 5;
 
 export class GameScene extends Scene{
-  tiledAnimationSprite?: TiledAnimationSprite;
   sound?: Howl;
 
-  playerPosition: Vector2 = new Vector2(0, 0);
+  player?: Player;
+  ghosts: Ghost[] = [];
+  ghostContainer: Container = new Container();
+  map: TiledMap;
 
   init(): void {
     let text = new Text('Game Scene', {
@@ -18,21 +24,19 @@ export class GameScene extends Scene{
       fill : 0xFFFFFF,
     });
 
+    this.scale.set(0.3, 0.3);
+
     this.addChild(text);
+    this.map = new TiledMap(this.sceneManager, "map");
+    this.addChild(this.map);
 
-    let animations = new Map<string, TiledAnimation>();
+    this.player = new Player(this.sceneManager, new Point(400, 0));
+    this.addChild(this.player);
 
-    animations.set("walk", {
-      frames: [{x: 0, y: 0}, {x: 1, y: 0}],
-      timePerFrame: 100,
-      loop: true
-    })
 
-    this.tiledAnimationSprite = new TiledAnimationSprite(this.sceneManager.app.loader.resources['assets/images/player.png'].texture, 400, 400, animations);
-    this.tiledAnimationSprite.setAnimation("walk");
-    this.tiledAnimationSprite.scale.set(0.5, 0.5);
+    //this.spawnGhosts();
 
-    this.addChild(this.tiledAnimationSprite)
+    this.addChild(this.ghostContainer);
 
     this.sound = new Howl({
       src: ['assets/sounds/random.wav']
@@ -40,34 +44,30 @@ export class GameScene extends Scene{
   }
 
   update(dt: number): void {
-    this.tiledAnimationSprite.update();
 
     if(Input.isKeyJustPressed(Keys.SPACE)){
       this.sound.play();
     }
 
     if(Input.isKeyJustPressed(Keys.ESC)){
-      this.sceneManager?.changeScene("title");
+      this.sceneManager.changeScene("title");
     }
 
-    let speed = 5;
+    this.player.update(dt);
 
-    if(Input.isKeyPressed(Keys.UP)){
-      this.playerPosition.y -= speed;
+    this.ghosts.forEach((ghost: Ghost)=>{
+      ghost.update(dt);
+    });
+  }
+
+  spawnGhosts(){
+    //TODO hacer puntos de spawn por el mapa en vez de añadirlos en una posición random
+    for(let i = 0; i < NUM_GHOSTS; i++){
+      let x = MathUtils.randomInt(-500, 1000);
+      let y = MathUtils.randomInt(-500, 1000);
+      let ghost = new Ghost(this.sceneManager, this.player, new Point(x, y));
+      this.ghosts.push(ghost);
+      this.ghostContainer.addChild(ghost);
     }
-
-    if(Input.isKeyPressed(Keys.DOWN)){
-      this.playerPosition.y += speed;
-    }
-
-    if(Input.isKeyPressed(Keys.LEFT)){
-      this.playerPosition.x -= speed;
-    }
-
-    if(Input.isKeyPressed(Keys.RIGHT)){
-      this.playerPosition.x += speed;
-    }
-
-    if(this.tiledAnimationSprite) this.tiledAnimationSprite.position.set(this.playerPosition.x, this.playerPosition.y);
   }
 }
