@@ -22,6 +22,10 @@ export class MathUtils{
   static randomInt(min: number, max: number){
     return Math.floor(Math.random() * (max - min + 1)) + min;
   }
+  
+  static randomAngle(){
+    return Math.random() * Math.PI * 2;
+  }
 
   static rectsCollide(a: Rectangle, b: Rectangle){
     return a.x < b.x + b.width &&

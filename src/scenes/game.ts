@@ -8,9 +8,10 @@ import { Scene } from "../lib/scene";
 import { TiledMap } from "../lib/tiled-map";
 import * as createjs from 'createjs-module';
 
-const NUM_GHOSTS = 1;
+const NUM_GHOSTS = 10;
 const SCALE = 0.3;
 const EVERY_10_SECONDS = 10000;
+const GHOST_R = 1000;
 
 export class GameScene extends Scene{
   sound?: Howl;
@@ -38,22 +39,15 @@ export class GameScene extends Scene{
 
     this.scale.set(SCALE, SCALE);
 
-    // this.addChild(text);
     this.map = new TiledMap(this.sceneManager, "map");
-    this.addChild(this.map);
-
-    //TODO: obtener posición inicial de tiled
-    this.player = new Player(this.sceneManager, new Point(0, 0));
-    this.addChild(this.player);
-
-    this.spawnGhosts();
+    this.player = new Player(this.sceneManager, new Point(12 * 400, 23 * 400));
     
+    this.addChild(this.map);
+    this.addChild(this.player);
     this.addChild(this.ghostContainer);
-
     this.addChild(this.collisionsGraphics);
 
     this.initFlashLightMask();
-
     this.startTimers();
 
     this.sound = new Howl({
@@ -62,7 +56,7 @@ export class GameScene extends Scene{
   }
 
   initFlashLightMask(){
-    const radius = 400;
+    const radius = 500;
     const blurSize = 100;
 
     const circle = new Graphics()
@@ -113,14 +107,21 @@ export class GameScene extends Scene{
   }
 
   spawnGhosts(){
-    //TODO hacer puntos de spawn por el mapa en vez de añadirlos en una posición random
     for(let i = 0; i < NUM_GHOSTS; i++){
-      let x = 0;MathUtils.randomInt(-500, 1000);
-      let y = 0;MathUtils.randomInt(-500, 1000);
+      let r = MathUtils.randomAngle();
+      let x = this.player.x + Math.cos(r) * GHOST_R;
+      let y = this.player.y + Math.sin(r) * GHOST_R;
       let ghost = new Ghost(this.sceneManager, new Point(x, y));
+      ghost.target = this.player;
+      ghost.show();
       this.ghosts.push(ghost);
       this.ghostContainer.addChild(ghost);
     }
+  }
+
+  removeGhost(ghost: Ghost){
+    this.ghosts.splice(this.ghosts.indexOf(ghost), 1);
+    this.ghostContainer.removeChild(ghost);
   }
 
   startTimers(){
@@ -133,11 +134,9 @@ export class GameScene extends Scene{
     this.startTimers();
 
     if(this.isGhostTurn){
-      this.stopMovingGhosts();
       this.hideGhosts();
       this.showFlashlight();
     }else{
-      this.startMovingGhosts();
       this.showGhosts();
       this.hideFlashlight();
     }
@@ -146,26 +145,14 @@ export class GameScene extends Scene{
   }
 
   showGhosts(){
-    this.ghosts.forEach((ghost: Ghost)=>{
-      ghost.show();
-    });
+    this.spawnGhosts();
   }
 
   hideGhosts(){
     this.ghosts.forEach((ghost: Ghost)=>{
-      ghost.hide();
-    });
-  }
-
-  startMovingGhosts(){
-    this.ghosts.forEach((ghost: Ghost)=>{
-      ghost.target = this.player;
-    });
-  }
-
-  stopMovingGhosts(){
-    this.ghosts.forEach((ghost: Ghost)=>{
+      ghost.collision = null;
       ghost.target = null;
+      ghost.hide(()=>{this.removeGhost(ghost);});
     });
   }
 
@@ -183,6 +170,8 @@ export class GameScene extends Scene{
 
     if(this.map) collisions.push(...this.map.collisions);
     if(this.player) collisions.push(this.player.collision);
+
+    collisions.push(...this.ghosts.map((ghost: Ghost)=>ghost.collision).filter((collision)=>collision != null));
 
     this.collisionsGraphics.lineStyle(5, 0xFF0000);
 
