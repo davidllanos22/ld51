@@ -7,17 +7,21 @@ import { MathUtils } from "../lib/math";
 import { Scene } from "../lib/scene";
 import { TiledMap } from "../lib/tiled-map";
 import * as createjs from 'createjs-module';
+import { Item } from "../entities/item";
 
 const NUM_GHOSTS = 10;
-const SCALE = 0.3;
+const SCALE = 0.5;
 const EVERY_10_SECONDS = 10000;
 const GHOST_R = 1000;
 
 export class GameScene extends Scene{
-  sound?: Howl;
+  sounds: any;
 
-  player?: Player;
+  bag: string[] = [];
+
+  player: Player;
   ghosts: Ghost[] = [];
+  items: Item[] = [];
   ghostContainer: Container = new Container();
   map: TiledMap;
 
@@ -40,19 +44,25 @@ export class GameScene extends Scene{
     this.scale.set(SCALE, SCALE);
 
     this.map = new TiledMap(this.sceneManager, "map");
-    this.player = new Player(this.sceneManager, new Point(12 * 400, 23 * 400));
+    this.player = new Player(this.sceneManager, new Point(12 * 400 + 200, 23 * 400 + 200));
     
     this.addChild(this.map);
     this.addChild(this.player);
     this.addChild(this.ghostContainer);
+    
+    this.loadItems();
+    
     this.addChild(this.collisionsGraphics);
 
     this.initFlashLightMask();
     this.startTimers();
 
-    this.sound = new Howl({
-      src: ['assets/sounds/random.wav']
-    });
+    this.sounds = {
+      random: new Howl({src: ["assets/sounds/random.wav"]}),
+      door: new Howl({src: ["assets/sounds/door.wav"]}),
+      pickup: new Howl({src: ["assets/sounds/pickup.wav"]}),
+      error: new Howl({src: ["assets/sounds/error.wav"]}),
+    };
   }
 
   initFlashLightMask(){
@@ -107,7 +117,7 @@ export class GameScene extends Scene{
       return a.y - b.y;
     });
 
-    this.drawCollisionsGraphics();
+    this.drawRectables();
   }
 
   spawnGhosts(){
@@ -168,20 +178,62 @@ export class GameScene extends Scene{
     createjs.Tween.get(this).to({focusSpriteScale: 1}, 1000);
   }
 
-  drawCollisionsGraphics(){
+  drawRectables(){
     this.collisionsGraphics.clear();
-    let collisions = [];
 
-    if(this.map) collisions.push(...this.map.collisions);
-    if(this.player) collisions.push(this.player.collision);
+    let colors: any = {
+      collision: 0xFF0000,
+      collectable: 0x0000FF,
+      interact: 0x00FF00
+    }
 
-    collisions.push(...this.ghosts.map((ghost: Ghost)=>ghost.collision).filter((collision)=>collision != null));
+    let rectangles: any = {
+      collision: [],
+      collectable: [],
+      interact: []
+    };
 
-    this.collisionsGraphics.lineStyle(5, 0xFF0000);
+    if(this.map) rectangles.collision.push(...this.map.collisions);
+    if(this.player) rectangles.collision.push(this.player.collision);
 
-    collisions.forEach((collision: Rectangle)=>{
-      this.collisionsGraphics.drawRect(collision.x, collision.y, collision.width, collision.height);
+    rectangles.collision.push(...this.ghosts.map((ghost: Ghost)=>ghost.collision).filter((collision)=>collision != null));
+
+    rectangles.collectable.push(...this.items.map((container: any)=>container.collision));
+    
+    rectangles.interact.push(this.player.interactCollision);
+
+    Object.keys(rectangles).forEach((key: string)=>{
+      this.collisionsGraphics.lineStyle(5, colors[key]);
+      rectangles[key].forEach((collision: Rectangle)=>{
+        this.collisionsGraphics.drawRect(collision.x, collision.y, collision.width, collision.height);
+      });
     });
+  }
+
+
+  loadItems(){
+    this.items.forEach((item: Item)=>{
+      this.addChild(item);
+    });
+  }
+
+  removeItemSprite(item: Item){
+    this.items.splice(this.items.indexOf(item), 1);
+    this.removeChild(item);
+  }
+
+  addItemToBag(item: string){
+    this.bag.push(item);
+    console.log(this.bag);
+  }
+
+  removeItemFromBag(item: string){
+    this.bag.splice(this.bag.indexOf(item), 1);
+    console.log(this.bag);
+  }
+
+  playSound(id: string){
+    this.sounds[id].play();
   }
 
 }

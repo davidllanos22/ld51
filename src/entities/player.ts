@@ -4,6 +4,7 @@ import { MathUtils } from "../lib/math";
 import { SceneManager } from "../lib/scene-manager";
 import { TiledAnimation, TiledAnimationSprite } from "../lib/tiled-animation-sprite";
 import { GameScene } from "../scenes/game";
+import { Item } from "./item";
 
 export class Player extends Container{
   tiledAnimationSprite?: TiledAnimationSprite;
@@ -82,8 +83,8 @@ export class Player extends Container{
     this.collision.y = this.position.y;
 
     //TODO: posicionar correctamente
-    this.interactCollision.x = this.position.x;
-    this.interactCollision.y = this.position.y;
+    this.interactCollision.x = this.position.x - 200;
+    this.interactCollision.y = this.position.y - 150;
   }
 
   isPositionFree(){
@@ -100,8 +101,14 @@ export class Player extends Container{
 
 
   interact(){
-    //TODO obtener entidades interactuables
-    //TODO comprobar si está colisionando con alguno
-    //TODO interactuar 
+    let items = (this.sceneManager.getCurrentScene() as GameScene).items; 
+
+    let interactItem = items.find((item: Item)=>{
+      return MathUtils.rectsCollide(item.collision, this.interactCollision);
+    });
+
+    if(interactItem){
+      interactItem.interact();
+    }
   }
 }
