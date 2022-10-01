@@ -30,14 +30,14 @@ export class TiledAnimationSprite extends TilingSprite{
 
     let now = Date.now();
 
-    let animation = this.getAnimation(this.animationName!);
+    let animation = this.getAnimation(this.animationName);
 
     let diff = now - this.startTime;
-    let frame = this.getAnimationFrame(animation!, this.currentFrame);
-    let frameTime = frame?.time || animation?.timePerFrame;
+    let frame = this.getAnimationFrame(animation, this.currentFrame);
+    let frameTime = frame.time || animation.timePerFrame;
 
-    if(diff > frameTime!){
-      this.currentFrame = this.getNextFrameIndex(this.currentFrame, animation!)!;
+    if(diff > frameTime){
+      this.currentFrame = this.getNextFrameIndex(this.currentFrame, animation);
       this.startTime = now;
     }
 

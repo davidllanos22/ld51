@@ -3,7 +3,6 @@ import { Input } from './lib/input';
 import { Scene } from './lib/scene';
 import { SceneManager } from './lib/scene-manager';
 import { GameScene } from './scenes/game';
-import { HelloWorld } from './scenes/helloWorld';
 import { TitleScene } from './scenes/title';
 
 let sceneManager: SceneManager;

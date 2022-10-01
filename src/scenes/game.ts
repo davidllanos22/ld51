@@ -28,7 +28,7 @@ export class GameScene extends Scene{
       loop: true
     })
 
-    this.tiledAnimationSprite = new TiledAnimationSprite(this.sceneManager!.app.loader.resources['assets/images/player.png'].texture, 400, 400, animations);
+    this.tiledAnimationSprite = new TiledAnimationSprite(this.sceneManager.app.loader.resources['assets/images/player.png'].texture, 400, 400, animations);
     this.tiledAnimationSprite.setAnimation("walk");
     this.tiledAnimationSprite.scale.set(0.5, 0.5);
 
@@ -40,10 +40,10 @@ export class GameScene extends Scene{
   }
 
   update(dt: number): void {
-    this.tiledAnimationSprite!.update();
+    this.tiledAnimationSprite.update();
 
     if(Input.isKeyJustPressed(Keys.SPACE)){
-      this.sound!.play();
+      this.sound.play();
     }
 
     if(Input.isKeyJustPressed(Keys.ESC)){

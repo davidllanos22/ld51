@@ -16,7 +16,7 @@ export class TitleScene extends Scene{
 
   update(dt: number): void {
     if(Input.isKeyJustPressed(Keys.SPACE)){
-      this.sceneManager?.changeScene("game");
+      this.sceneManager.changeScene("game");
     }
   }
 }
