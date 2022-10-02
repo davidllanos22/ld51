@@ -64,18 +64,9 @@ export class Player extends Container{
       this.interact();
     }
 
-    let mouse = Input.getMouse();
-    let gameContainerPosition = this.position;
-    let screenWidth = this.sceneManager.app.view.width / SCALE;
-    let screenHeight = this.sceneManager.app.view.height / SCALE;
+    let mouseWorld = Input.getMouseWorld();
 
-    let mouseRelative = new Point(gameContainerPosition.x + (mouse.x * 2) - screenWidth / 2, gameContainerPosition.y + (mouse.y * 2) - screenHeight / 2);
-
-    let angle = MathUtils.angleFromTo(this.position, mouseRelative);
-    console.log("-----------")
-    console.log(mouseRelative)
-    console.log(this.position)
-    console.log(MathUtils.toDegrees(angle))
+    let angle = MathUtils.angleFromTo(this.position, mouseWorld);
 
     this.light.rotation = angle;
     this.light.update(dt);

@@ -20,6 +20,7 @@ export class Input{
   private static keysJustReleased: Map<string, boolean> = new Map();
 
   private static mouse: IPoint = new Point(0, 0);
+  private static mouseWorld: IPoint = new Point(0, 0);
 
   static init(){
     window.addEventListener("keydown", this.keyDown.bind(this));
@@ -50,8 +51,16 @@ export class Input{
     this.mouse = new Point(x, y);
   }
 
+  static setMouseWorld(x: number, y: number){
+    this.mouseWorld = new Point(x, y);
+  }
+
   static getMouse(){
     return this.mouse;
+  }
+
+  static getMouseWorld(){
+    return this.mouseWorld;
   }
 
   private static keyDown(event: any){

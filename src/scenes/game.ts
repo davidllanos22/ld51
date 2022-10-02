@@ -108,6 +108,10 @@ export class GameScene extends Scene{
     let cameraY = this.player.y - screenHeight / 2;
 
     this.pivot.set(cameraX, cameraY);
+    let mouse = Input.getMouse();
+    let mouseWorld = new Point(this.player.x + (mouse.x * 2) - screenWidth / 2, this.player.y + (mouse.y * 2) - screenHeight / 2);
+    
+    Input.setMouseWorld(mouseWorld.x, mouseWorld.y);
 
     if(this.focusSprite){
 
