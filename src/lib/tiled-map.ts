@@ -34,12 +34,9 @@ export class TiledMap extends Container{
 
         objects.forEach((object: any)=>{
           let sprite = this.getSprite(object.gid);
-
           let position = new Point(object.x, object.y - 400);
 
-          console.log({id:object.id, sprite, position});
-
-          (this.sceneManager.getCurrentScene() as GameScene).items.push(new Item(this.sceneManager, position, sprite, object.properties));
+          (this.sceneManager.getCurrentScene() as GameScene).items.push(new Item(this.sceneManager, position, sprite, object.properties, object.name));
         });
       }else{
         let data = layer.data;

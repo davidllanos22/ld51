@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.9" tiledversion="1.9.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="400" tileheight="400" infinite="0" nextlayerid="7" nextobjectid="13">
+<map version="1.9" tiledversion="1.9.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="400" tileheight="400" infinite="0" nextlayerid="7" nextobjectid="14">
  <editorsettings>
   <export target="map.json" format="json"/>
  </editorsettings>
@@ -95,6 +95,11 @@
     <property name="action_destroy" value="self"/>
     <property name="action_obtain_item" value="key_01"/>
     <property name="action_play_sound" value="pickup"/>
+   </properties>
+  </object>
+  <object id="13" name="mike" gid="23" x="6000" y="8800" width="400" height="400">
+   <properties>
+    <property name="action_play_sound" value="mike"/>
    </properties>
   </object>
  </objectgroup>

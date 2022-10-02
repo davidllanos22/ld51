@@ -62,6 +62,7 @@ export class GameScene extends Scene{
       door: new Howl({src: ["assets/sounds/door.wav"]}),
       pickup: new Howl({src: ["assets/sounds/pickup.wav"]}),
       error: new Howl({src: ["assets/sounds/error.wav"]}),
+      mike: new Howl({src: ["assets/sounds/mike.mp3"]}),
     };
   }
 
@@ -103,8 +104,19 @@ export class GameScene extends Scene{
     this.pivot.set(cameraX, cameraY);
 
     if(this.focusSprite){
-      this.focusSprite.position.x = cameraX + screenWidth / 2;
-      this.focusSprite.position.y = cameraY + screenHeight / 2;
+
+      let flashlight = this.children.find((c: any)=>c.name == "flashlight");
+
+      if(this.hasItemInBag("flashlight")){
+        this.focusSprite.position.x = cameraX + screenWidth / 2;
+        this.focusSprite.position.y = cameraY + screenHeight / 2;
+      }else{
+        if(flashlight){
+          this.focusSprite.position.x = flashlight.position.x + 200; 
+          this.focusSprite.position.y = flashlight.position.y + 200;
+        }
+      }
+      
       let r = this.focusSpriteScale + Math.random() * 0.05;
       this.focusSprite.scale.set(r, r);
     }
@@ -159,10 +171,14 @@ export class GameScene extends Scene{
   }
 
   showGhosts(){
+    if(!this.hasItemInBag("flashlight")) return;
+
     this.spawnGhosts();
   }
 
   hideGhosts(){
+    if(!this.hasItemInBag("flashlight")) return;
+    
     this.ghosts.forEach((ghost: Ghost)=>{
       ghost.collision = null;
       ghost.target = null;
@@ -227,13 +243,17 @@ export class GameScene extends Scene{
     console.log(this.bag);
   }
 
+  hasItemInBag(item: string){
+    return this.bag.includes(item);
+  }
+
   removeItemFromBag(item: string){
     this.bag.splice(this.bag.indexOf(item), 1);
     console.log(this.bag);
   }
 
   playSound(id: string){
-    this.sounds[id].play();
+    if(this.sounds[id]) this.sounds[id].play();
   }
 
 }
