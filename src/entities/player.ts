@@ -69,7 +69,7 @@ export class Player extends Container{
 
     let angle = MathUtils.angleFromTo(this.position, mouseWorld);
 
-    // this.light.rotation = angle;
+    this.light.rotate(angle);
     this.light.update(dt);
   }
 

@@ -40,7 +40,6 @@ export class Light extends Container{
   
         if(intersects){
           ghost.hide(()=>{});
-          console.log(ghost.collision, this.triangle);
         }
   
         console.log(intersects);
@@ -57,6 +56,10 @@ export class Light extends Container{
     this.graphics.lineTo(this.triangle.b.x, this.triangle.b.y);
     this.graphics.lineTo(this.triangle.c.x, this.triangle.c.y);
     this.graphics.endFill();
+  }
+
+  rotate(angle: number){
+    this.triangle.rotate(angle);
   }
 
 }

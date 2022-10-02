@@ -41,12 +41,22 @@ export class MathUtils{
   static toDegrees(radians: number){
     return radians * (180 / Math.PI);
   }
+
+  static rotatePoint(origin: Point, point: Point, angle: number){
+    let result = point.clone();
+    result.x = Math.cos(angle) * (point.x - origin.x) - Math.sin(angle) * (point.y - origin.y) + origin.x;
+    result.y = Math.sin(angle) * (point.x - origin.x) + Math.cos(angle) * (point.y - origin.y) + origin.y;
+    return result;
+  }
 }
 
 export class Triangle{
+  _b: Point;
+  _c: Point;
 
   constructor(public a: Point, public b: Point, public c: Point){
-
+    this._b = b.clone();
+    this._c = c.clone();
   }
 
   intersectsPoint(point: Point){
@@ -78,6 +88,8 @@ export class Triangle{
   }
 
   rotate(angle: number){
+    this.b = MathUtils.rotatePoint(this.a, this._b, angle);
+    this.c = MathUtils.rotatePoint(this.a, this._c, angle);
   }
   
 }
