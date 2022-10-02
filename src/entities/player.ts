@@ -4,42 +4,33 @@ import { MathUtils } from "../lib/math";
 import { SceneManager } from "../lib/scene-manager";
 import { TiledAnimation, TiledAnimationSprite } from "../lib/tiled-animation-sprite";
 import { GameScene, SCALE } from "../scenes/game";
+import { Entity } from "./entity";
 import { Item } from "./item";
 import { Light } from "./light";
 
-export class Player extends Container{
-  tiledAnimationSprite?: TiledAnimationSprite;
-  speed: number = 10;
-  collision: Rectangle;
-
+export class Player extends Entity{
   interactCollision: Rectangle;
 
   light: Light;
 
-  constructor(private sceneManager: SceneManager, position: IPoint){
-    super();
-    this.position = position;
+  constructor(sceneManager: SceneManager, position: IPoint){
+    super(sceneManager, position);
+
+    this.interactCollision = new Rectangle(0, 0, 400, 400);
+    this.light = new Light(this.sceneManager, this);
+    this.light.visible = false;
 
     let animations = new Map<string, TiledAnimation>();
 
-    animations.set("walk", {
+    animations.set("idle", {
       // frames: [{x: 0, y: 0}, {x: 1, y: 0}],
       frames: [{x: 0, y: 0}],
       timePerFrame: 100,
       loop: true
     })
 
-    this.tiledAnimationSprite = new TiledAnimationSprite(this.sceneManager.app.loader.resources["player"].texture, 400, 400, animations);
-    this.tiledAnimationSprite.setAnimation("walk");
-    this.tiledAnimationSprite.pivot.set(200, 200);
-
-    this.collision = new Rectangle(0, 0, 200, 200);
-    this.interactCollision = new Rectangle(0, 0, 400, 400);
-    this.light = new Light(this.sceneManager, this);
-    this.light.visible = false;
-
-    this.addChild(this.tiledAnimationSprite);
-    this.addChild(this.light)
+    this.initAnimationSprite(animations, "player", "idle");
+    this.addChild(this.light);
   }
 
   update(dt: number){
@@ -74,39 +65,14 @@ export class Player extends Container{
   }
 
   move(x: number, y: number){
-    //  Intenta mover a la posición, si hay colisión vuelve a la posición anterior
-    let lastPosition = new Point(this.position.x, this.position.y);
-
-    this.position.x += x * this.speed;
-    this.position.y += y * this.speed;
-
-    this.updateCollisions();
-
-    if(!this.isPositionFree()){
-      this.position = lastPosition;
-      this.updateCollisions();
-    }
+    super.move(x, y, true);
   }
 
   updateCollisions(){
-    this.collision.x = this.position.x - 100;
-    this.collision.y = this.position.y;
+    super.updateCollisions();
 
-    //TODO: posicionar correctamente
     this.interactCollision.x = this.position.x - 200;
     this.interactCollision.y = this.position.y - 150;
-  }
-
-  isPositionFree(){
-    let isFree = true;
-
-    let collisions = (this.sceneManager.getCurrentScene() as GameScene).map.collisions;
-    
-    isFree = collisions.find((collision: Rectangle)=>{
-      return MathUtils.rectsCollide(collision, this.collision);
-    }) == null;
-
-    return isFree;
   }
 
 

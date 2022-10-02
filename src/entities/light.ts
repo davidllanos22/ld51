@@ -26,8 +26,6 @@ export class Light extends Container{
   update(dt: number){
     let ghosts = (this.sceneManager.getCurrentScene() as GameScene).ghosts;
 
-    let collisions = ghosts.map((ghost: Ghost)=> ghost.collision).filter((collision: Rectangle)=>collision != null);
-    
     ghosts.forEach((ghost: Ghost)=>{
       if(ghost && ghost.collision){
         let triangle = new Triangle(
@@ -38,11 +36,10 @@ export class Light extends Container{
   
         let intersects = triangle.intersectsRect(ghost.collision);
   
+        //TODO: si toca más de X segundos desaparece
         if(intersects){
           ghost.hide(()=>{});
         }
-  
-        console.log(intersects);
       }
     });
 

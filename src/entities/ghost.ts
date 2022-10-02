@@ -4,18 +4,15 @@ import { SceneManager } from "../lib/scene-manager";
 import { TiledAnimation, TiledAnimationSprite } from "../lib/tiled-animation-sprite";
 import * as createjs from 'createjs-module';
 import { GameScene } from "../scenes/game";
+import { Entity } from "./entity";
 
-export class Ghost extends Container{
-  tiledAnimationSprite?: TiledAnimationSprite;
-  speed: number = 3;
+export class Ghost extends Entity{
 
   count: number = 0;
   target: Container;
-  collision: Rectangle;
 
-  constructor(private sceneManager: SceneManager, position: IPoint){
-    super();
-    this.position = position;
+  constructor(sceneManager: SceneManager, position: IPoint){
+    super(sceneManager, position);
 
     this.speed = MathUtils.randomInt(1, 3);
 
@@ -27,14 +24,8 @@ export class Ghost extends Container{
       loop: true
     });
 
-    this.tiledAnimationSprite = new TiledAnimationSprite(this.sceneManager.app.loader.resources["ghost"].texture, 400, 400, animations);
-    this.tiledAnimationSprite.setAnimation("idle");
-    this.tiledAnimationSprite.pivot.set(200, 200);
+    this.initAnimationSprite(animations, "ghost", "idle");
     this.tiledAnimationSprite.alpha = 0;
-
-    this.collision = new Rectangle(0, 0, 200, 200);
-
-    this.addChild(this.tiledAnimationSprite);
   }
 
   update(dt: number){
@@ -52,34 +43,19 @@ export class Ghost extends Container{
     }
   }
 
-  move(x: number, y: number){
-    //  Intenta mover a la posición, si hay colisión vuelve a la posición anterior
-    let lastPosition = new Point(this.position.x, this.position.y);
+  // isPositionFree(){
+  //   let isFree = true;
 
-    this.position.x += x * this.speed;
-    this.position.y += y * this.speed;
-
-    this.updateCollisions();
-
-    // if(!this.isPositionFree()){
-    //   this.position = lastPosition;
-    //   this.updateCollisions();
-    // }
-  }
-
-  isPositionFree(){
-    let isFree = true;
-
-    let ghosts = (this.sceneManager.getCurrentScene() as GameScene).ghosts;
-    let collisions = ghosts.map((ghost: Ghost)=>ghost.collision).filter((collision: Rectangle)=>collision != null);
+  //   let ghosts = (this.sceneManager.getCurrentScene() as GameScene).ghosts;
+  //   let collisions = ghosts.map((ghost: Ghost)=>ghost.collision).filter((collision: Rectangle)=>collision != null);
     
-    isFree = collisions.find((collision: Rectangle)=>{
-      if(collision == this.collision) return false;
-      return MathUtils.rectsCollide(collision, this.collision);
-    }) == null;
+  //   isFree = collisions.find((collision: Rectangle)=>{
+  //     if(collision == this.collision) return false;
+  //     return MathUtils.rectsCollide(collision, this.collision);
+  //   }) == null;
 
-    return isFree;
-  }
+  //   return isFree;
+  // }
 
   show(){
     //TODO: tiempo random

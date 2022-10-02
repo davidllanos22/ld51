@@ -210,6 +210,18 @@
                  "width":400,
                  "x":6000,
                  "y":8800
+                }, 
+                {
+                 "class":"",
+                 "gid":24,
+                 "height":400,
+                 "id":14,
+                 "name":"guard",
+                 "rotation":0,
+                 "visible":true,
+                 "width":400,
+                 "x":6400,
+                 "y":9200
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -300,7 +312,7 @@
          "y":0
         }],
  "nextlayerid":7,
- "nextobjectid":14,
+ "nextobjectid":15,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.9.2",

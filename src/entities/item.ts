@@ -38,6 +38,7 @@ export class Item extends Container{
   }
 
   setConfigFromProperties(){
+    if(!this.properties) return;
     let game = (this.sceneManager.getCurrentScene() as GameScene);
     
     this.getPropertiesWithPrefix("config").forEach((property: any)=>{
