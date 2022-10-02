@@ -35,7 +35,8 @@ export class Player extends Container{
 
     this.collision = new Rectangle(0, 0, 200, 200);
     this.interactCollision = new Rectangle(0, 0, 400, 400);
-    this.light = new Light(this);
+    this.light = new Light(this.sceneManager, this);
+    this.light.visible = false;
 
     this.addChild(this.tiledAnimationSprite);
     this.addChild(this.light)
@@ -68,7 +69,7 @@ export class Player extends Container{
 
     let angle = MathUtils.angleFromTo(this.position, mouseWorld);
 
-    this.light.rotation = angle;
+    // this.light.rotation = angle;
     this.light.update(dt);
   }
 
@@ -119,5 +120,9 @@ export class Player extends Container{
     if(interactItem){
       interactItem.interact();
     }
+  }
+
+  setLightVisible(visible: boolean){
+    this.light.visible = visible;
   }
 }

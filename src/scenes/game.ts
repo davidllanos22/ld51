@@ -250,7 +250,10 @@ export class GameScene extends Scene{
 
   addItemToBag(item: string){
     this.bag.push(item);
-    console.log(this.bag);
+
+    if(item == "flashlight"){
+      this.player.setLightVisible(true);
+    }
   }
 
   hasItemInBag(item: string){
