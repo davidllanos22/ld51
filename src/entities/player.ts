@@ -3,8 +3,9 @@ import { Input, Keys } from "../lib/input";
 import { MathUtils } from "../lib/math";
 import { SceneManager } from "../lib/scene-manager";
 import { TiledAnimation, TiledAnimationSprite } from "../lib/tiled-animation-sprite";
-import { GameScene } from "../scenes/game";
+import { GameScene, SCALE } from "../scenes/game";
 import { Item } from "./item";
+import { Light } from "./light";
 
 export class Player extends Container{
   tiledAnimationSprite?: TiledAnimationSprite;
@@ -12,6 +13,8 @@ export class Player extends Container{
   collision: Rectangle;
 
   interactCollision: Rectangle;
+
+  light: Light;
 
   constructor(private sceneManager: SceneManager, position: IPoint){
     super();
@@ -32,8 +35,10 @@ export class Player extends Container{
 
     this.collision = new Rectangle(0, 0, 200, 200);
     this.interactCollision = new Rectangle(0, 0, 400, 400);
+    this.light = new Light(this);
 
     this.addChild(this.tiledAnimationSprite);
+    this.addChild(this.light)
   }
 
   update(dt: number){
@@ -59,9 +64,22 @@ export class Player extends Container{
       this.interact();
     }
 
-    
-  }
+    let mouse = Input.getMouse();
+    let gameContainerPosition = this.position;
+    let screenWidth = this.sceneManager.app.view.width / SCALE;
+    let screenHeight = this.sceneManager.app.view.height / SCALE;
 
+    let mouseRelative = new Point(gameContainerPosition.x + (mouse.x * 2) - screenWidth / 2, gameContainerPosition.y + (mouse.y * 2) - screenHeight / 2);
+
+    let angle = MathUtils.angleFromTo(this.position, mouseRelative);
+    console.log("-----------")
+    console.log(mouseRelative)
+    console.log(this.position)
+    console.log(MathUtils.toDegrees(angle))
+
+    this.light.rotation = angle;
+    this.light.update(dt);
+  }
 
   move(x: number, y: number){
     //  Intenta mover a la posición, si hay colisión vuelve a la posición anterior

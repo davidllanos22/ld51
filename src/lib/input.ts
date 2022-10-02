@@ -1,3 +1,5 @@
+import { IPoint, Point } from "pixi.js";
+
 export enum Keys {
   W = "KeyW",
   A = "KeyA",
@@ -16,6 +18,8 @@ export class Input{
   private static keysPressed: Map<string, boolean> = new Map();
   private static keysJustPressed: Map<string, boolean> = new Map();
   private static keysJustReleased: Map<string, boolean> = new Map();
+
+  private static mouse: IPoint = new Point(0, 0);
 
   static init(){
     window.addEventListener("keydown", this.keyDown.bind(this));
@@ -40,6 +44,14 @@ export class Input{
     let result = this.keysJustReleased.has(code);
     this.keysJustReleased.delete(code);
     return result;
+  }
+
+  static setMouse(x: number, y: number){
+    this.mouse = new Point(x, y);
+  }
+
+  static getMouse(){
+    return this.mouse;
   }
 
   private static keyDown(event: any){

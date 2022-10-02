@@ -37,4 +37,8 @@ export class MathUtils{
   static angleFromTo(a: IPoint, b: IPoint){
     return Math.atan2(b.y - a.y, b.x - a.x);
   }
+
+  static toDegrees(radians: number){
+    return radians * (180 / Math.PI);
+  }
 }

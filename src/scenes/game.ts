@@ -10,7 +10,7 @@ import * as createjs from 'createjs-module';
 import { Item } from "../entities/item";
 
 const NUM_GHOSTS = 10;
-const SCALE = 0.5;
+export const SCALE = 0.5;
 const EVERY_10_SECONDS = 10000;
 const GHOST_R = 1000;
 
@@ -56,6 +56,12 @@ export class GameScene extends Scene{
 
     this.initFlashLightMask();
     this.startTimers();
+
+    this.interactive = true;
+
+    this.sceneManager.app.renderer.plugins.interaction.on("pointermove", (event: any)=>{
+      Input.setMouse(event.data.global.x, event.data.global.y)
+    })
 
     this.sounds = {
       random: new Howl({src: ["assets/sounds/random.wav"]}),

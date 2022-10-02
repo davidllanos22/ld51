@@ -130,6 +130,11 @@
                          "value":"key_01"
                         }, 
                         {
+                         "name":"action_shake",
+                         "type":"string",
+                         "value":"1"
+                        }, 
+                        {
                          "name":"config_solid",
                          "type":"bool",
                          "value":true

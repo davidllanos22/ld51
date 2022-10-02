@@ -83,6 +83,7 @@
   <object id="11" name="door" gid="15" x="6400" y="8400" width="400" height="400">
    <properties>
     <property name="action_required_item" value="key_01"/>
+    <property name="action_shake" value="1"/>
     <property name="config_solid" type="bool" value="true"/>
     <property name="fail_play_sound" value="error"/>
     <property name="success_destroy" value="self"/>

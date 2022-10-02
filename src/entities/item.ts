@@ -59,8 +59,13 @@ export class Item extends Container{
     }else if(name == "play_sound"){
       game.playSound(property.value);
     }else if(name == "shake"){
-      game.playSound(property.value);
-      // createjs.Tween.get(this.getChildAt(0)).to({alpha: 0}, 1000).call(callback);
+      createjs.Tween.get(this.getChildAt(0))
+      .to({x: 5}, 100)
+      .to({x: -5}, 100)
+      .to({x: 5}, 100)
+      .to({x: -5}, 100)
+      .to({x: 0}, 100)
+
     }else if(name == "required_item"){
       let hasItem = game.bag.includes(property.value)
       console.log(hasItem);
